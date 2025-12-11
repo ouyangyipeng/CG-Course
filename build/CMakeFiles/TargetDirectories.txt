@@ -1,0 +1,10 @@
+/work/CV-HW2/build/CMakeFiles/imgui.dir
+/work/CV-HW2/build/CMakeFiles/CG_HW2.dir
+/work/CV-HW2/build/CMakeFiles/edit_cache.dir
+/work/CV-HW2/build/CMakeFiles/rebuild_cache.dir
+/work/CV-HW2/build/glfw/CMakeFiles/edit_cache.dir
+/work/CV-HW2/build/glfw/CMakeFiles/rebuild_cache.dir
+/work/CV-HW2/build/glfw/src/CMakeFiles/update_mappings.dir
+/work/CV-HW2/build/glfw/src/CMakeFiles/glfw.dir
+/work/CV-HW2/build/glfw/src/CMakeFiles/edit_cache.dir
+/work/CV-HW2/build/glfw/src/CMakeFiles/rebuild_cache.dir

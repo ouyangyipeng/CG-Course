@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/CG_HW2.dir/src/main.cpp.o CMakeFiles/CG_HW2.dir/work/CV-HW2/3rdparty/glfw-3.3.8/deps/glad_gl.c.o -o bin/CG_HW2  lib/libimgui.a lib/libglfw3.a -ldl -lpthread /usr/lib/x86_64-linux-gnu/librt.a -lm -ldl /usr/lib/x86_64-linux-gnu/libX11.so 

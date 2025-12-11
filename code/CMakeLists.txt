@@ -1,108 +1,72 @@
 cmake_minimum_required(VERSION 3.15)
-project(MyGLFWImGuiProject) 
-# 设置 C++ 标准
+project(CG_HW2 LANGUAGES C CXX)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-# 设置编译器模式（Debug/Release）
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif()
-# 设置输出目录
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-# 查找 OpenGL
-find_package(OpenGL REQUIRED)
-# # 下载并配置 GLFW
-# include(FetchContent)
-# FetchContent_Declare(
-#     glfw
-#     URL https://github.com/glfw/glfw/releases/download/3.3.8/glfw-3.3.8.zip
-# )
-# FetchContent_MakeAvailable(glfw)
-# # 下载并配置 ImGui
-# FetchContent_Declare(
-#     imgui
-#     URL https://github.com/ocornut/imgui/archive/refs/tags/v1.90.4.zip
-# )
-# FetchContent_MakeAvailable(imgui)
 
-# 指定到下载好的那里
-set(GLFW_PATH "${CMAKE_SOURCE_DIR}/../3rdparty/glfw-3.3.8")
-set(IMGUI_PATH "${CMAKE_SOURCE_DIR}/../3rdparty/imgui-1.90.4")
+set(THIRDPARTY_DIR ${CMAKE_SOURCE_DIR}/../3rdparty)
+set(GLFW_DIR ${THIRDPARTY_DIR}/glfw-3.3.8)
+set(IMGUI_DIR ${THIRDPARTY_DIR}/imgui-1.90.4)
+set(GLM_DIR ${THIRDPARTY_DIR}/glm)
+set(GLAD_SOURCE ${GLFW_DIR}/deps/glad_gl.c)
 
-# 添加GLFW
-add_subdirectory(${GLFW_PATH} ${CMAKE_BINARY_DIR}/glfw)
+option(GLFW_BUILD_EXAMPLES "Build GLFW examples" OFF)
+option(GLFW_BUILD_TESTS "Build GLFW tests" OFF)
+option(GLFW_BUILD_DOCS "Build GLFW docs" OFF)
+option(GLFW_INSTALL "Enable GLFW install target" OFF)
 
-# # 添加 ImGui 源文件
-# set(IMGUI_SOURCES
-#     ${imgui_SOURCE_DIR}/imgui.cpp
-#     ${imgui_SOURCE_DIR}/imgui_demo.cpp
-#     ${imgui_SOURCE_DIR}/imgui_draw.cpp
-#     ${imgui_SOURCE_DIR}/imgui_tables.cpp
-#     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-#     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-#     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
-# )
-# set(IMGUI_HEADERS
-#     ${imgui_SOURCE_DIR}/imgui.h
-#     ${imgui_SOURCE_DIR}/imgui_internal.h
-#     ${imgui_SOURCE_DIR}/imconfig.h
-#     ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h
-#     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h
-#     ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3_loader.h
-# )
+add_subdirectory(${GLFW_DIR} ${CMAKE_BINARY_DIR}/glfw)
 
-# 添加ImGui静态库
-add_library(imgui STATIC
-    ${IMGUI_PATH}/imgui.cpp
-    ${IMGUI_PATH}/imgui_demo.cpp
-    ${IMGUI_PATH}/imgui_draw.cpp
-    ${IMGUI_PATH}/imgui_tables.cpp
-    ${IMGUI_PATH}/imgui_widgets.cpp
-    ${IMGUI_PATH}/backends/imgui_impl_glfw.cpp
-    ${IMGUI_PATH}/backends/imgui_impl_opengl3.cpp
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_demo.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
 )
 
-# 设置ImGui头文件目录
-target_include_directories(imgui PUBLIC 
-    ${IMGUI_PATH}
-    ${IMGUI_PATH}/backends
-    ${GLFW_PATH}/include
+add_library(imgui STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui PUBLIC
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+    ${GLFW_DIR}/include
+    ${GLFW_DIR}/deps
+)
+target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD GLFW_INCLUDE_NONE)
+
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+    ${GLAD_SOURCE}
 )
 
-# 创建可执行文件
-add_executable(${PROJECT_NAME} 
-    src/main.cpp 
-    # ${IMGUI_SOURCES}
-    # ${IMGUI_HEADERS}
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${GLFW_DIR}/include
+    ${GLFW_DIR}/deps
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+    ${GLM_DIR}
+    ${THIRDPARTY_DIR}
 )
-# # 包含目录
-# target_include_directories(${PROJECT_NAME} PRIVATE
-#     ${imgui_SOURCE_DIR}
-#     ${imgui_SOURCE_DIR}/backends
-# )
-# 链接库
-target_link_libraries(${PROJECT_NAME} PRIVATE
-    OpenGL::GL
-    glfw
-    imgui
-)
-# 在 Windows 上链接额外的库
-if (WIN32)
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        opengl32.lib
-    )
-endif()
-# 设置编译定义
+
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    IMGUI_IMPL_OPENGL_LOADER_GL3W
+    IMGUI_IMPL_OPENGL_LOADER_GLAD
+    GLFW_INCLUDE_NONE
 )
-# 复制 DLL 文件（Windows）
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    imgui
+    glfw
+)
+
 if (WIN32)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:glfw>
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    )
+    target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
+endif()
+
+if (UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE dl pthread)
 endif()
