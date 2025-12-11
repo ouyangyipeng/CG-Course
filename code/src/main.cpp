@@ -51,6 +51,9 @@ struct RenderSettings
 	bool drawWireframe = false;
 	bool autoRotate = true;
 	float rotationSpeed = 30.0f; // degrees per second
+	float orbitYawDeg = 0.0f;    // horizontal angle around target
+	float orbitPitchDeg = -10.0f; // vertical angle (clamped)
+	float orbitRadius = 3.5f;    // distance to target
 	glm::vec3 clearColor = glm::vec3(0.05f, 0.05f, 0.08f);
 	glm::vec3 baseColor = glm::vec3(0.7f, 0.7f, 0.8f);
 	glm::vec3 lightColor = glm::vec3(1.0f);
@@ -588,6 +591,9 @@ void drawUI(RenderSettings &settings, double renderMs)
 	ImGui::Checkbox("Draw wireframe", &settings.drawWireframe);
 	ImGui::Checkbox("Auto rotate", &settings.autoRotate);
 	ImGui::SliderFloat("Rotation speed (deg/s)", &settings.rotationSpeed, 0.0f, 180.0f);
+	ImGui::SliderFloat("Orbit yaw (deg)", &settings.orbitYawDeg, -180.0f, 180.0f);
+	ImGui::SliderFloat("Orbit pitch (deg)", &settings.orbitPitchDeg, -85.0f, 85.0f);
+	ImGui::SliderFloat("Orbit radius", &settings.orbitRadius, 1.5f, 8.0f);
 
 	ImGui::ColorEdit3("Clear color", &settings.clearColor.x);
 	ImGui::ColorEdit3("Base color", &settings.baseColor.x);
@@ -658,7 +664,17 @@ int main()
 		fb.clear(settings.clearColor);
 
 		const glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(rotationDeg), glm::vec3(0.0f, 1.0f, 0.0f));
-		const glm::mat4 view = glm::lookAt(settings.cameraPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+		const float yawRad = glm::radians(settings.orbitYawDeg);
+		const float pitchRad = glm::radians(glm::clamp(settings.orbitPitchDeg, -85.0f, 85.0f));
+		const float cp = std::cos(pitchRad);
+		const float sp = std::sin(pitchRad);
+		const float cy = std::cos(yawRad);
+		const float sy = std::sin(yawRad);
+		glm::vec3 camPos = glm::vec3(cp * cy, sp, cp * sy) * settings.orbitRadius;
+		settings.cameraPos = camPos;
+
+		const glm::mat4 view = glm::lookAt(camPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		const glm::mat4 proj = glm::perspective(glm::radians(45.0f), static_cast<float>(fb.width) / static_cast<float>(fb.height), 0.1f, 20.0f);
 
 		std::vector<std::array<Vertex, 3>> mesh;
