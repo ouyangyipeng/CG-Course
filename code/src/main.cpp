@@ -289,13 +289,9 @@ glm::vec3 shadePixel(const glm::vec3 &albedo,
 					 const RenderSettings &settings,
 					 ShadingMode mode)
 {
-	if (mode == ShadingMode::Flat)
+	if (mode == ShadingMode::Flat || mode == ShadingMode::Gouraud)
 	{
-		return computeLighting(worldPos, normal, albedo, settings, ShadingMode::BlinnPhong);
-	}
-	if (mode == ShadingMode::Gouraud)
-	{
-		return albedo; // already lit at vertices
+		return albedo;
 	}
 	return computeLighting(worldPos, normal, albedo, settings, mode);
 }
@@ -352,6 +348,20 @@ void rasterizeTriangle(Framebuffer &fb,
 {
 	// Sort by y to build top/middle/bottom vertices.
 	std::array<RasterVertex, 3> tri = v;
+
+	if (settings.shading == ShadingMode::Flat)
+	{
+		const glm::vec3 edge1 = tri[1].worldPos - tri[0].worldPos;
+		const glm::vec3 edge2 = tri[2].worldPos - tri[0].worldPos;
+		const glm::vec3 faceNormal = glm::normalize(glm::cross(edge1, edge2));
+		const glm::vec3 centroid = (tri[0].worldPos + tri[1].worldPos + tri[2].worldPos) / 3.0f;
+		// Use the first vertex's albedo as the face color
+		const glm::vec3 flatColor = computeLighting(centroid, faceNormal, tri[0].albedo, settings, ShadingMode::BlinnPhong);
+		tri[0].color = flatColor;
+		tri[1].color = flatColor;
+		tri[2].color = flatColor;
+	}
+
 	std::sort(tri.begin(), tri.end(), [](const RasterVertex &a, const RasterVertex &b) {
 		return a.screen.y < b.screen.y;
 	});
@@ -503,11 +513,6 @@ RasterVertex toRaster(const Vertex &v,
 		out.color = v.color;
 	}
 
-	if (settings.shading == ShadingMode::Flat)
-	{
-		out.color = settings.baseColor;
-		out.albedo = settings.baseColor;
-	}
 	return out;
 }
 
