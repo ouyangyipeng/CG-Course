@@ -1,0 +1,1880 @@
+% !TeX program = xelatex
+% !TeX encoding = UTF-8
+\documentclass[a4paper]{article}
+
+\usepackage[UTF8]{ctex}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+% \usepackage{listings-rust}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{color}
+\usepackage{indentfirst}        % 首段缩进
+\setlength{\parindent}{2em}     % 缩进2字符
+\usepackage{zhnumber}           % 中文编号
+\usepackage[dvipsnames,table,xcdraw]{xcolor}
+\usepackage{adjustbox}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[many]{tcolorbox}
+% \newfontfamily{\enfont}{Arial}  % 定义英文字体
+\usepackage{enumitem}
+\usepackage{xeCJK}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{inconsolata} % 使用更美观的等宽字体 Inconsolata
+\usepackage{multirow} % 用于表格中的多行合并
+\usepackage{tikz} % 添加 TikZ 宏包用于绘制流程图
+\usetikzlibrary{positioning} % 添加定位库以支持 'of' 语法
+
+% 全局设置（影响所有级别）
+\setlist[itemize]{
+    itemsep=2pt,
+    topsep=4pt,
+    parsep=1pt,
+    leftmargin=3em
+}
+
+% 仅设置第一级（最高级）
+\setlist[itemize,1]{
+    label=\textcolor{orange}{$\blacktriangleright$},
+    font=\color{blue!80!black}\small\bfseries,
+    before={\color{blue!80!black}\small\bfseries}
+}
+
+% 重置第二级及更深级别（恢复默认样式）
+\setlist[itemize,2]{
+    label={\normalfont\textbullet},
+    font=\normalfont\normalsize\color{black},
+    before={\color{black}},
+    leftmargin=*
+}
+\setlist[itemize,3]{
+    label={\normalfont$\circ$},
+    font=\normalfont\normalsize,
+    before={},
+    leftmargin=*
+}
+
+
+% 定义可分页的引用环境
+\newtcolorbox[auto counter]{myquote}[1][]{
+    % breakable,                     % 允许跨页分断
+    % enhanced jigsaw,               % 优化分页处的边框
+    colback=gray!5,                % 背景色
+    colframe=gray!30,              % 边框色
+    left=5mm, right=5mm,           % 左右内边距
+    top=3mm, bottom=3mm,           % 上下内边距
+    width=0.85\textwidth,         % 宽度
+    center,                     % 居中
+    arc=0mm,                       % 直角边框
+    boxrule=0.5pt,                 % 边框线宽
+    fontupper=\small\linespread{1.1}\selectfont, % 行距微调（1.1倍）
+    % fontupper=\sffamily\linespread{1.05}\selectfont, % 无衬线 + 紧凑行距
+    before upper={\parindent2em\color{black!40!blue}\itshape\small\kaishu}, % 深蓝色文本
+    #1 % 允许额外参数
+}
+
+%\newcommand{\college}{中山大学计算机学院}
+\newcommand{\projname}{计算机网络实验|期末实验}
+\newcommand{\reporttitle}{计算机网络实验考试报告}
+\newcommand{\groupno}{第一组}
+\newcommand{\authorname}{欧阳易芃、马福泉、刘昊、彭怡萱}
+\newcommand{\major}{计算机科学与技术}
+\newcommand{\adviser}{谢逸}
+\newcommand{\startdate}{2025年12月22日}
+\newcommand{\labenddate}{2025年12月28日}
+\newcommand{\labroom}{实验D402}
+
+\pagestyle{fancy} % 使用 fancyhdr 风格
+\fancyhf{}      % 清空默认的页眉页脚
+
+% 设置页眉
+\fancyhead[L]{\kaishu \projname}      % 左侧页眉显示项目名称
+\fancyhead[C]{\kaishu \reporttitle}    % 中间页眉显示报告标题
+\fancyhead[R]{\kaishu \authorname} % 右侧页眉显示作者姓名
+
+% 设置页脚
+\fancyfoot[C]{第 \thepage 页，共 \pageref{LastPage} 页} % 中间页脚显示页码
+
+% 去除页眉页脚与正文之间的分隔线
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% 设置文档背景颜色
+\definecolor{mybgcolor}{RGB}{0, 0, 0} % 定义背景颜色
+\definecolor{NavyBlue}{RGB}{0,0,128} % 添加颜色定义
+
+
+
+% 全局设置lstlisting的样式
+\lstset{
+    language=Python, % 设置默认语言
+    basicstyle=\footnotesize\ttfamily, % 设置字体族
+    breaklines=true, % 自动换行
+    keywordstyle=\bfseries\color{blue}, % 设置关键字为粗体，颜色为蓝色
+    % morekeywords={}, % 设置更多的关键字，用逗号分隔
+    % emph={}, % 指定强调词，如果有多个，用逗号隔开
+    % emphstyle=\bfseries\color{Rhodamine},
+    commentstyle=\itshape\color{green!50!black},
+    stringstyle=\bfseries\color{PineGreen!90!black},
+    columns=fixed,% 设置列宽
+    numbers=left,
+    numbersep=2em,
+    numberstyle=\footnotesize\color{gray},
+    frame=single,
+    framesep=1em,
+    showstringspaces=false,% % 不显示字符串中的空格
+    keepspaces=true,
+    backgroundcolor=\color{gray!5},
+    % linewidth=0.8\linewidth, % 设置宽度为当前行宽的 80%
+    xleftmargin=0.2\linewidth, % 左右边距自动调整
+    xrightmargin=0.08\linewidth,
+    % gobble=2, % 可选：移除代码前的缩进
+    % postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space}, % 可选：换行符样式
+    captionpos=b, % 可选：标题位置
+    aboveskip=1em, % 可选：上方间距
+    belowskip=1em, % 可选：下方间距
+}
+
+% 定义Python语言的样式
+\lstdefinelanguage{Python}{
+    basicstyle=\footnotesize\ttfamily,
+    breaklines=true,
+    keywordstyle=\bfseries\color{blue},
+    morekeywords={import,from,as,def,class,return,if,elif,else,for,while,in,try,except,with,lambda,print},
+    emph={self,True,False,None},
+    emphstyle=\bfseries\color{Rhodamine},
+    commentstyle=\itshape\color{green!50!black},
+    stringstyle=\bfseries\color{PineGreen!90!black},
+}
+
+% 定义交换机/路由器配置命令的样式
+\lstdefinelanguage{HuaweiConfig}{
+    basicstyle=\footnotesize\ttfamily,
+    breaklines=true,
+    keywordstyle=\bfseries\color{NavyBlue},
+    morekeywords={system-view,sysname,interface,port,link-type,access,trunk,allow-pass,vlan,stp,mode,enable,ip,address,ospf,area,network,quit,display,brief,clock,datetime,traffic-filter,inbound,acl,rule,permit,deny,time-range,description,undo,shutdown,batch,edged-port,GigabitEthernet},
+    emph={GE0/0/0,GE0/0/1,GE0/0/2,GE0/0/3,GigabitEthernet0/0/0,GigabitEthernet0/0/1,GigabitEthernet0/0/2,GigabitEthernet0/0/3,GigabitEthernet0/0/22,GigabitEthernet0/0/23,GigabitEthernet0/0/24,S1,S2,R1,R2,Huawei},
+    emphstyle=\bfseries\color{Rhodamine},
+    commentstyle=\itshape\color{green!50!black},
+    stringstyle=\bfseries\color{PineGreen!90!black},
+    comment=[l]{\#},
+    moredelim=[s][\color{magenta}]{<}{>},
+    moredelim=[s][\color{magenta}]{[}{]},
+}
+
+% 定义cmd命令行的样式
+\lstdefinelanguage{CmdLine}{
+    basicstyle=\footnotesize\ttfamily,
+    breaklines=true,
+    keywordstyle=\bfseries\color{NavyBlue},
+    morekeywords={ipconfig,ping,tracert,netstat,arp,route,nslookup,ftp,telnet},
+    emph={/all,/s,/d,/n,/r,/h},
+    emphstyle=\bfseries\color{Rhodamine},
+    commentstyle=\itshape\color{green!50!black},
+    stringstyle=\bfseries\color{PineGreen!90!black},
+}
+
+\begin{document}
+
+
+% 封面
+\begin{titlepage}
+    \centering
+    
+    \includegraphics[width=10cm]{img/SYSULogo.png}
+
+    \vspace{1em}
+    %{\Large \college \par}
+    \vspace{1em}
+    {\Large \kaishu \projname \par}
+    \vspace{3em}
+
+    {\fontsize{40pt}{42pt}\kaishu \selectfont \boldmath \reporttitle\par}
+    \vspace*{\fill}
+
+    \begin{center}
+    {\Large
+    \makebox[5em][s]{小组编号}:\underline{\makebox[15em][c]{\kaishu \groupno}}\\[1em]
+    \makebox[5em][s]{组员姓名}:\underline{\makebox[15em][c]{\kaishu 欧阳易芃、马福泉}}\\[0.5em]
+    \makebox[5em][s]{} \underline{\makebox[15em][c]{\kaishu 刘昊、彭怡萱}}\\[1em]
+    \makebox[5em][s]{专业}:\underline{\makebox[15em][c]{\kaishu \major}}\\[1em]
+    \makebox[5em][s]{课程教师}:\underline{\makebox[15em][c]{\kaishu \adviser}}\\[1em]
+    \makebox[5em][s]{起始日期}:\underline{\makebox[15em][c]{\kaishu \startdate}}\\[1em]
+    \makebox[5em][s]{结束日期}:\underline{\makebox[15em][c]{\kaishu \labenddate}}\\[1em]
+    \makebox[5em][s]{实验地点}:\underline{\makebox[15em][c]{\kaishu \labroom}}
+    }
+    \end{center}
+
+    \vspace*{\fill}
+\end{titlepage}
+
+% 目录
+\tableofcontents
+\newpage
+
+\section{实验概述}
+
+\subsection{实验考试时间与地点}
+\begin{itemize}
+    \item \textbf{实验时间}：2025年12月22日 14:20 - 15:40
+    \item \textbf{实验地点}：计算机学院实验楼 D402 网络实验室
+    \item \textbf{指导教师}：谢逸
+\end{itemize}
+
+\subsection{小组成员分工}
+为了高效完成本次综合实验，我们小组进行了明确的分工协作，具体分工如下表所示：
+
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5}
+    \begin{tabular}{|c|c|p{8cm}|c|}
+        \hline
+        \multicolumn{2}{|c|}{\textbf{组编号：}1} & \multicolumn{2}{c|}{\textbf{桌编号：}27} \\ \hline
+        \textbf{姓名} & \textbf{学号} & \multicolumn{1}{c|}{\textbf{具体分工}} & \textbf{评分} \\ \hline
+        欧阳易芃 & 23336188 & 负责整体拓扑规划、IP 分配方案、配置命令设计和操作S2/R1/H2，以及最终报告的完整撰写。 & 100 \\ \hline
+        马福泉 & 23336179 & 负责实验中特殊节点 H4 的配置与调试，交换机 VLAN 与 RSTP 配置及防环测试。 & 99 \\ \hline
+        刘昊 & 23336150 & 负责 H1，S1的配置调试，负责 R1 的ospf配置。 & 98 \\ \hline
+        彭怡萱 & 23336193 & 负责绘制实验拓扑图，配置并操作 H3、H5。 & 98 \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{实验题目}
+
+以下题目引用自中山大学计算机网络实验考试指导书\cite{Guidance}：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/实验拓扑图.png}
+    \caption{实验网络拓扑图}
+    \label{fig:final_topology}
+\end{figure}
+
+请参照以上网络拓扑图，利用实验室已有设备完成相应的实验任务，记录实验中的关键信息以及截
+图，并呈现在实验报告中。网络拓扑说明：
+
+\begin{enumerate}
+    \item 路由器 R1 与 R2 通过一个网口互联；
+    \item 交换机 S1 与 S2 分别通过网口与路由器 R1 连接；
+    \item 交换机 S1 与 S2 先连接一条线，完成 VLAN 和 RSTP 设置后再连接另一条网线。（请注意交换机环路连接引起的网络风暴）；
+    \item 主机按图中方案与交换机及路由器连接，主机数量不够，可以动态调配主机与中继设备的连接，或通过自带笔记本来实现。
+    \item 请根据任务需要自定义主机、网段的地址和掩码，并在实验报告中明确地址信息。
+\end{enumerate}
+
+\textbf{实验任务说明：}
+
+\begin{enumerate}
+    \item (20 分) 设计并实现方案解决图中 S1 与 S2 之间插上两条网线后产生的网络风暴问题，请在实验报告中提供方案和实验结果。
+    \item (20 分) 按图中完成 VLAN 配置，要求 H1 与（H2，H4）能够相互 ping 通，不同 VLAN 要求通过路由器连通，请在实验报告中提供方案和实验结果。
+    \item (20 分) R1 与 R2 之间采用 OSPF 路由协议。要求所有主机能够两两相互 ping 通。
+    \item (20 分) 实现符合以下要求的访问控制：
+    \begin{itemize}
+        \item 在 08:00~11:00 时间段内，H1 与 H5 可以互访，但是不允许 H1 与 H3 互通；H2 与 H3 可以互访，但是不允许 H2 与 H5 互通。
+        \item 在 14:00~17:00 时间段内，H1 与 H3 可以互访，但是不允许 H1 与 H5 互通；H2 与 H5 可以互访，但是不允许 H2 与 H3 互通。
+        \item 其余时段，禁止 H1 与（H3，H5）的互通，禁止 H2 与（H3，H5）的互通。
+        \item 在所有时段，H1、H2 与 H4 之间的互通不受 ACL 限制；H3 和 H5 之间的互通不受 ACL 限制。H4 可以全时段自由与任意主机进行双向互通。
+    \end{itemize}
+    \item (20 分) 基于 UDP 或 TCP 套接字编程技术，实现 H1（发送端）和 H5（接收端）的数据发送。发送数据包括：图像和文字（建议把下图存为 BMP 格式图像后用于传送）。请在实验报告中呈现数据经过中继设备时的特点，并比较接收结果和发送端原始版本之间的差异。
+    \begin{figure}[H]
+        \centering
+        \begin{subfigure}{0.48\textwidth}
+            \centering
+            \includegraphics[width=0.5\textwidth]{img/待发送图片.png}
+            \caption{图像}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}{0.48\textwidth}
+            \centering
+            \begin{verbatim}
+Dr. Sun Yat-sen ordered the merger of several colleges
+and universities in February 1924, into the National
+Guangdong University, which was renamed as National
+Sun Yat-sen University in his memory in August 1926.
+            \end{verbatim}
+            \caption{文本}
+        \end{subfigure}
+        \caption{套接字编程传送数据}
+        \label{fig:socket_data}
+    \end{figure}
+\end{enumerate}
+
+\textbf{注意事项：}
+
+a) 实验中，除了配置交换机和路由器需要之外，请断开桌面主机与桌面小交换机的连接。
+
+b) 实验中需要用到的 IP 地址请自己规划设计，并在提交的报告中标注及说明清楚。
+
+c) 请在实验报告中详实呈现自己的实验结果及证明信息，避免被误判为虚假或抄袭报告。
+
+\subsection{实验环境}
+
+实验环境就是平时计网实验室的环境：
+
+\begin{itemize}
+    \item \textbf{硬件设备}：
+    \begin{itemize}
+        \item \textbf{路由器}：Huawei AR6140E (2台)。
+        \item \textbf{交换机}：Huawei S5700 (2台)。
+        \item \textbf{终端}：标准 PC (5台)，用于模拟用户主机，三台教室主机Win10，分配为H1、H2、H3，另外我们自己带了两台Win11笔记本接网线，分别作为H4、H5。
+    \end{itemize}
+    \item \textbf{软件环境}：
+    \begin{itemize}
+        \item \textbf{连接控制台}：MobaXterm 连接并配置路由器和交换机。
+        \item \textbf{抓包工具}：Wireshark 用于捕获和分析网络接口的数据包，验证协议交互过程。
+        \item \textbf{编程环境}：Python3 使用标准库 \texttt{socket}, \texttt{struct}, \texttt{hashlib} 进行网络编程。
+        \item \textbf{操作系统}：Windows 10/11
+    \end{itemize}
+\end{itemize}
+
+% \section{实验原理}
+
+% \subsection{VLAN (虚拟局域网) 技术原理}
+% VLAN (Virtual Local Area Network) 是一种将物理局域网在逻辑上划分成多个广播域的通信技术。
+% \subsubsection{802.1Q 帧格式}
+% IEEE 802.1Q 标准定义了 VLAN 的标签格式。在标准的以太网帧头（Source MAC 和 Type/Length 之间）插入了一个 4 字节的 802.1Q Tag。
+% \begin{itemize}
+%     \item \textbf{TPID (Tag Protocol Identifier)}: 2 字节，固定值为 0x8100，表明这是一个携带 VLAN 标签的帧。
+%     \item \textbf{PRI (Priority)}: 3 比特，用于 QoS (Quality of Service)，标识帧的优先级（0-7）。
+%     \item \textbf{CFI (Canonical Format Indicator)}: 1 比特，用于兼容令牌环网，以太网中通常为 0。
+%     \item \textbf{VID (VLAN ID)}: 12 比特，标识该帧所属的 VLAN。范围是 0-4095，其中 0 和 4095 保留，可用范围是 1-4094。
+% \end{itemize}
+
+% \subsubsection{端口类型与处理逻辑}
+% 交换机端口主要分为 Access、Trunk 和 Hybrid 三种类型，本实验主要涉及前两种。
+% \begin{enumerate}
+%     \item \textbf{Access 端口}：
+%     \begin{itemize}
+%         \item \textbf{接收帧}：收到无标签帧（Untagged Frame）时，打上端口的 PVID (Port Default VLAN ID)；收到带标签帧（Tagged Frame）时，如果 VID 等于 PVID 则接收，否则丢弃。
+%         \item \textbf{发送帧}：剥离 VLAN 标签，发送无标签帧。通常用于连接 PC、服务器等不支持 VLAN 的终端设备。
+%     \end{itemize}
+%     \item \textbf{Trunk 端口}：
+%     \begin{itemize}
+%         \item \textbf{接收帧}：收到带标签帧时，如果 VID 在允许通过列表（Allow-pass List）中则接收，否则丢弃；收到无标签帧时，打上 PVID 并检查是否允许通过。
+%         \item \textbf{发送帧}：如果帧的 VID 等于端口 PVID，则剥离标签发送；如果帧的 VID 在允许列表中但不等于 PVID，则保持标签发送。通常用于交换机之间的级联。
+%     \end{itemize}
+% \end{enumerate}
+
+% \subsection{RSTP (快速生成树协议) 原理}
+% RSTP (Rapid Spanning Tree Protocol, IEEE 802.1w) 是对 STP (802.1d) 的改进，旨在解决 STP 收敛速度慢（通常需要 30-50 秒）的问题。
+
+% \subsubsection{端口角色 (Port Roles)}
+% RSTP 定义了以下端口角色：
+% \begin{itemize}
+%     \item \textbf{Root Port (根端口)}：非根交换机上到根桥路径开销最小的端口。
+%     \item \textbf{Designated Port (指定端口)}：每个网段上到根桥路径开销最小的端口。
+%     \item \textbf{Alternate Port (替代端口)}：根端口的备份，提供了从非根交换机到根桥的另一条路径。
+%     \item \textbf{Backup Port (备份端口)}：指定端口的备份，提供了到同一网段的另一条路径（通常用于 Hub 环境）。
+%     \item \textbf{Edge Port (边缘端口)}：直接连接终端设备的端口，不参与生成树计算，可以立即进入 Forwarding 状态。
+% \end{itemize}
+
+% \subsubsection{端口状态 (Port States)}
+% RSTP 将 STP 的 5 种状态简化为 3 种：
+% \begin{itemize}
+%     \item \textbf{Discarding}：不转发用户数据，不学习 MAC 地址。对应 STP 的 Disabled, Blocking, Listening。
+%     \item \textbf{Learning}：不转发用户数据，但学习 MAC 地址。
+%     \item \textbf{Forwarding}：正常转发用户数据，学习 MAC 地址。
+% \end{itemize}
+
+% \subsubsection{P/A 机制 (Proposal/Agreement)}
+% RSTP 通过 P/A 机制实现快速收敛。当一个指定端口准备进入 Forwarding 状态时，它会发送 Proposal 置位的 BPDU。下游交换机收到后，会同步将自己的非边缘端口阻塞，然后回复 Agreement 置位的 BPDU。上游交换机收到 Agreement 后，立即将端口转为 Forwarding。这个过程是级联进行的，可以在毫秒级完成全网收敛。
+
+% \subsection{OSPF (开放式最短路径优先) 原理}
+% OSPF 是一种基于链路状态 (Link-State) 的内部网关协议 (IGP)。
+
+% \subsubsection{LSA 类型 (Link State Advertisement)}
+% OSPF 通过泛洪 LSA 来同步链路状态数据库 (LSDB)。常见的 LSA 类型包括：
+% \begin{itemize}
+%     \item \textbf{Type 1 (Router LSA)}：每个路由器都会产生，描述自身的链路状态和开销，仅在区域内泛洪。
+%     \item \textbf{Type 2 (Network LSA)}：由 DR (Designated Router) 产生，描述该网段内所有路由器的连接情况，仅在区域内泛洪。
+%     \item \textbf{Type 3 (Summary LSA)}：由 ABR (Area Border Router) 产生，描述区域间的路由信息。
+%     \item \textbf{Type 4 (ASBR Summary LSA)}：由 ABR 产生，描述到 ASBR (Autonomous System Boundary Router) 的路由。
+%     \item \textbf{Type 5 (AS External LSA)}：由 ASBR 产生，描述引入的外部路由。
+% \end{itemize}
+
+% \subsubsection{邻居状态机}
+% OSPF 邻居建立经历以下状态：
+% \begin{enumerate}
+%     \item \textbf{Down}：未收到邻居的 Hello 包。
+%     \item \textbf{Init}：收到邻居 Hello 包，但自己的 Router ID 未在其中。
+%     \item \textbf{2-Way}：双向通信建立，DR/BDR 选举在此状态完成。
+%     \item \textbf{ExStart}：协商主从关系和 DD (Database Description) 序列号。
+%     \item \textbf{Exchange}：交换 DD 报文，描述 LSDB 摘要。
+%     \item \textbf{Loading}：发送 LSR (Link State Request) 请求所需的 LSA 详细信息。
+%     \item \textbf{Full}：LSDB 同步完成，邻接关系建立。
+% \end{enumerate}
+
+% \subsection{ACL (访问控制列表) 原理}
+% ACL 是一系列规则的集合，用于对数据包进行分类和处理。
+% \subsubsection{匹配机制}
+% ACL 遵循“顺序匹配”原则：
+% \begin{itemize}
+%     \item 系统按照 Rule ID 从小到大的顺序依次匹配规则。
+%     \item 一旦匹配成功，则执行相应的动作（Permit 或 Deny），并停止后续匹配。
+%     \item 如果所有规则都不匹配，则执行默认动作（华为设备默认为 Permit，但在 Traffic-filter 中通常隐含 Deny，具体取决于应用场景）。
+% \end{itemize}
+
+% \subsubsection{ACL 分类}
+% \begin{itemize}
+%     \item \textbf{基本 ACL (2000-2999)}：仅基于源 IP 地址进行匹配。
+%     \item \textbf{高级 ACL (3000-3999)}：可基于源 IP、目的 IP、源端口、目的端口、协议类型等五元组进行匹配，更加灵活。
+% \end{itemize}
+
+% \subsection{Socket 网络编程原理}
+% Socket 是应用层与 TCP/IP 协议族通信的中间软件抽象层。
+% \subsubsection{TCP 三次握手}
+% 建立连接时：
+% \begin{enumerate}
+%     \item Client 发送 SYN (SEQ=x)。
+%     \item Server 回复 SYN (SEQ=y) + ACK (ACK=x+1)。
+%     \item Client 回复 ACK (ACK=y+1)。
+% \end{enumerate}
+% \subsubsection{字节序 (Byte Order)}
+% 网络传输统一采用大端序 (Big-Endian)，即高位字节存储在低地址。而 x86 架构的主机通常采用小端序 (Little-Endian)。因此在发送多字节整数（如长度字段）时，必须进行字节序转换（如 Python 中的 \texttt{struct.pack('>I', ...)}）。
+
+\newpage
+
+\section{【任务零】规划与配置}
+
+在开始配置前，我们先对网络拓扑进行了深入分析，方便先设计合理的IP地址、网关、接口。
+
+\subsection{ip与接口规划}
+
+\subsubsection{左侧vlan区域}
+
+由于vlan区域内有两个vlan，分别是vlan10和vlan20，我们为这两个vlan分别规划了独立的子网，直接对应命名，设置为\texttt{192.168.10.0}和\texttt{192.168.20.0}。这次实验全部掩码都使用/24，即子网掩码为\texttt{255.255.255.0}，后面不再赘述。
+
+首先看vlan10，主要有H2--S2、S1--R1这两个链路属于vlan10，所以我们给H2分配了\texttt{192.168.10.2}，网关也即R1的接口地址（后续分了0号接口）分配为\texttt{192.168.10.254}，这样H2就可以通过R1访问其他网络了。
+
+同理，vlan20主要有H1--S1、H4--S2、S2--R1这三个链路属于vlan20，需要特别注意的是S2--R1这段在原本的图上没有标，但很显然S2到R1的必须是vlan20，否则vlan20就没法到达任何一个路由。因此我们给H1分配了\texttt{192.168.20.1}，H4分配了\texttt{192.168.20.4}，它们共同的网关R1接口地址（后续分了1号接口）分配为\texttt{192.168.20.254}。
+
+对于S1和S2之间的双链路互联，不需要分配ip，只用分接口，我们使用22和23号接口分别对应连接。而S1与H1、S2与H2的连接分别使用各自的1号接口，S2与H4的连接使用S2的2号接口。最后就是R1与S1、S2的连接，都使用交换器上的24号接口，R1分别使用GE0/0/0和GE0/0/1接口连接S1和S2。
+
+\subsubsection{右侧远端路由区域}
+
+右侧远端路由区域主要有H3、H5和R2三个设备，对于R1--H3、R1--R2、R2--H5这三段链路肯定都要独立的子网。
+
+对于R1--H3链路，分配了30段子网，H3的地址为\texttt{192.168.30.3}，R1的接口地址（后续分了2号接口）分配为\texttt{192.168.30.254}。
+而R1--R2链路，分配了12段子网，R1的接口地址（后续分了3号接口）分配为\texttt{192.168.12.1}，R2的接口地址（后续分了0号接口）分配为\texttt{192.168.12.2}。
+最后是R2--H5链路，分配了50段子网，H5的地址为\texttt{192.168.50.5}，R2的接口地址（后续分了1号接口）分配为\texttt{192.168.50.254}。
+
+最终，我们就可以画出一张标了ip和接口的完整网络拓扑图，这张图是在考试现场手画的：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/手画拓扑分配.png}
+    % \caption{带IP地址和接口的网络拓扑图}
+    \label{fig:final_topology_ip}
+\end{figure}
+
+
+\subsubsection{IP地址列表}
+
+根据以上分析，我们整理出了完整的IP地址规划表，见表\ref{tab:ip_plan}：
+
+\begin{longtable}{@{}cccccc@{}}
+\caption{IP地址规划表} \label{tab:ip_plan} \\
+\toprule
+\textbf{设备} & \textbf{接口} & \textbf{IP地址} & \textbf{掩码} & \textbf{所属网络} & \textbf{备注} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{设备} & \textbf{接口} & \textbf{IP地址} & \textbf{掩码} & \textbf{所属网络} & \textbf{备注} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\multirow{4}{*}{R1} & GE0/0/0 & 192.168.10.254 & /24 & VLAN 10 & 网关 (连S1) \\
+ & GE0/0/1 & 192.168.20.254 & /24 & VLAN 20 & 网关 (连S2) \\
+ & GE0/0/2 & 192.168.30.254 & /24 & Net\_30 & 连 H3 \\
+ & GE0/0/3 & 192.168.12.1 & /24 & Net\_12 & R1-R2互联 \\
+\midrule
+\multirow{2}{*}{R2} & GE0/0/0 & 192.168.12.2 & /24 & Net\_12 & R1-R2互联 \\
+ & GE0/0/1 & 192.168.50.254 & /24 & Net\_50 & 连 H5 \\
+\midrule
+H1 & Eth0 & 192.168.20.1 & /24 & VLAN 20 & GW: .254 \\
+H2 & Eth0 & 192.168.10.2 & /24 & VLAN 10 & GW: .254 \\
+H3 & Eth0 & 192.168.30.3 & /24 & Net\_30 & GW: .254 \\
+H4 & Eth0 & 192.168.20.4 & /24 & VLAN 20 & GW: .254 \\
+H5 & Eth0 & 192.168.50.5 & /24 & Net\_50 & GW: .254 \\
+\bottomrule
+\end{longtable}
+
+以及，各设备接口连接情况总结如下表\ref{tab:interface_summary}：
+
+\begin{table}[H]
+\centering
+\caption{设备接口连接总结表} \label{tab:interface_summary}
+\begin{tabular}{@{}ccc@{}}
+\toprule
+\textbf{设备} & \textbf{接口} & \textbf{连接对象} \\
+\midrule
+R1 & GE0/0/0 & S1 (VLAN 10) \\
+R1 & GE0/0/1 & S2 (VLAN 20) \\
+R1 & GE0/0/2 & H3 \\
+R1 & GE0/0/3 & R2 \\
+\midrule
+R2 & GE0/0/0 & R1 \\
+R2 & GE0/0/1 & H5 \\
+\midrule
+S1 & G0/0/1 & H1 (VLAN 20) \\
+S1 & G0/0/24 & R1 (VLAN 10) \\
+S1 & G0/0/22 & S2 (Trunk) \\
+S1 & G0/0/23 & S2 (Trunk) \\
+\midrule
+S2 & G0/0/1 & H2 (VLAN 10) \\
+S2 & G0/0/2 & H4 (VLAN 20) \\
+S2 & G0/0/24 & R1 (VLAN 20) \\
+S2 & G0/0/22 & S1 (Trunk) \\
+S2 & G0/0/23 & S1 (Trunk) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+\section{【任务一】解决网络风暴}
+
+看图可以发现，S1与S2之间通过双链路互联，这其实就跟之前那次实验中我们做观察风暴的场景类似。如果不启用生成树协议，广播帧（如ARP请求）将在S1和S2之间无限循环，形成广播风暴。这将导致交换机CPU占用率飙升至100\%，MAC地址表震荡，最终导致整个局域网瘫痪。因此，必须在S1和S2上启用RSTP，以确保网络的稳定性和可靠性。
+
+\subsection{配置思路}
+
+解决这个问题的核心在于启用rstp和vlan，我们的操作顺序如下：
+
+\begin{enumerate}
+    \item \textbf{物理连接控制}：为了防止在配置未完成时发生广播风暴，我们首先\textbf{只连接一条}S1与S2之间的级联线。
+    \item \textbf{VLAN创建与划分}：在S1和S2上创建VLAN 10和20，并将连接主机的端口划入相应VLAN。
+    \item \textbf{RSTP配置}：全局开启RSTP模式，确保协议生效。
+    \item \textbf{Trunk配置}：配置级联端口为Trunk模式，允许所有相关VLAN通过。
+    \item \textbf{冗余连接与验证}：连接第二条级联线，观察RSTP的收敛过程。
+\end{enumerate}
+
+此时的接线情况如下：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/初始接线.jpg}
+    \caption{初始接线示意图}
+    \label{fig:task1_wiring}
+\end{figure}
+
+\subsection{具体配置}
+
+\subsubsection{H1、H2的ip配置}
+
+在配置交换机之前，我们先为H1和H2配置好IP地址和网关，确保它们能够正常通信。
+
+\begin{figure}[H]
+    \centering
+    % 第一张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.95\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/H1配ip.png}
+        }
+        \subcaption{H1 配置 IP 地址}
+    \end{minipage}
+    \hfill
+    % 第二张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.9\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/H2配ip.png}
+        }
+        \subcaption{H2 配置 IP 地址}
+    \end{minipage}
+    \caption{H1和H2的IP地址配置}
+\end{figure}
+
+\subsubsection{S1 交换机配置}
+首先登录S1交换机，进行基础配置。这里我们首先创建VLAN 10和20，然后启用RSTP模式，接着配各个接口。因为前面已经规划好所有接口了，所以我们直接把所有口都配了，就不用后面再改了。
+
+对于s1的1口，因为是连h1的，所以是access口，属于vlan20；24口连r1，是access口，属于vlan10。最后22和23口是连s2的，所以是trunk口，允许vlan10和20通过。
+
+\begin{lstlisting}[language=HuaweiConfig, caption={S1 基础配置}]
+<Huawei> system-view
+[Huawei] sysname S1
+[S1] vlan batch 10 20
+
+# 开启 RSTP 模式
+[S1] stp mode rstp
+[S1] stp enable
+
+[S1] interface GigabitEthernet 0/0/1
+[S1-GigabitEthernet0/0/1] port link-type access
+[S1-GigabitEthernet0/0/1] port default vlan 20
+[S1-GigabitEthernet0/0/1] quit
+
+[S1] interface GigabitEthernet 0/0/24
+[S1-GigabitEthernet0/0/24] port link-type access
+[S1-GigabitEthernet0/0/24] port default vlan 10
+[S1-GigabitEthernet0/0/24] quit
+
+[S1] interface GigabitEthernet 0/0/22
+[S1-GigabitEthernet0/0/22] port link-type trunk
+[S1-GigabitEthernet0/0/22] port trunk allow-pass vlan 10 20
+[S1-GigabitEthernet0/0/22] quit
+
+[S1] interface GigabitEthernet 0/0/23
+[S1-GigabitEthernet0/0/23] port link-type trunk
+[S1-GigabitEthernet0/0/23] port trunk allow-pass vlan 10 20
+[S1-GigabitEthernet0/0/23] quit
+\end{lstlisting}
+
+\subsubsection{S2 交换机配置}
+S2 的配置逻辑与 S1 基本一样的，只是接口的 VLAN 分配有所不同。1 口连接 H2，属于 VLAN 10；2 口连接 H4，属于 VLAN 20；24 口连接 R1，属于 VLAN 20。22 和 23 口同样配置为 Trunk 模式，允许 VLAN 10 和 20 通过。
+
+\begin{lstlisting}[language=HuaweiConfig, caption={S2 基础配置}]
+<Huawei> system-view
+[Huawei] sysname S2
+[S2] vlan batch 10 20
+[S2] stp mode rstp
+[S2] stp enable
+
+[S2] interface GigabitEthernet 0/0/1
+[S2-GigabitEthernet0/0/1] port link-type access
+[S2-GigabitEthernet0/0/1] port default vlan 10
+[S2-GigabitEthernet0/0/1] quit
+
+[S2] interface GigabitEthernet 0/0/2
+[S2-GigabitEthernet0/0/2] port link-type access
+[S2-GigabitEthernet0/0/2] port default vlan 20
+[S2-GigabitEthernet0/0/2] quit
+
+[S2] interface GigabitEthernet 0/0/24
+[S2-GigabitEthernet0/0/24] port link-type access
+[S2-GigabitEthernet0/0/24] port default vlan 20
+[S2-GigabitEthernet0/0/24] quit
+
+[S2] interface GigabitEthernet 0/0/22
+[S2-GigabitEthernet0/0/22] port link-type trunk
+[S2-GigabitEthernet0/0/22] port trunk allow-pass vlan 10 20
+[S2-GigabitEthernet0/0/22] quit
+
+[S2] interface GigabitEthernet 0/0/23
+[S2-GigabitEthernet0/0/23] port link-type trunk
+[S2-GigabitEthernet0/0/23] port trunk allow-pass vlan 10 20
+[S2-GigabitEthernet0/0/23] quit
+\end{lstlisting}
+
+在两台机子上的执行情况如图：
+
+\begin{figure}[H]
+    \centering
+    % 第一张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.95\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/S1配置.png}
+        }
+        \subcaption{S1 配置截图}
+    \end{minipage}
+    \hfill
+    % 第二张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.95\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/S2配置.png}
+        }
+        \subcaption{S2 配置截图}
+    \end{minipage}
+    \caption{S1 和 S2 的配置截图}
+\end{figure}
+
+\subsection{RSTP 状态观察与调试}
+
+在完成上述配置后，我们在 S1 上执行了 \texttt{display stp brief} 命令，查看 RSTP 的端口角色和状态：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={S1 STP 状态检查}]
+[S1] display stp brief
+ MSTID  Port                        Role  STP State     Protection
+   0    GigabitEthernet0/0/1        DESI  FORWARDING      NONE
+   0    GigabitEthernet0/0/22       ROOT  FORWARDING      NONE
+\end{lstlisting}
+
+显然，此时只有一条链路（G0/0/22）处于转发状态，另一条链路（G0/0/23）尚未连接，因此未显示。那这里为什么没有24呢？当然是因为这时R1还没接线过来（可以看上面的图），所以24口也没显示。
+
+接下来，我们再拿了一条网线（此时我们发现旧网线很容易掉，所以找助教拿了一大堆全新网线）连接第二条链路（G0/0/23），并在S2上重新执行 \texttt{display stp brief} 命令：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={S1 STP 状态检查}]
+[S2] display stp brief
+ MSTID  Port                        Role  STP State     Protection
+   0    GigabitEthernet0/0/1        DESI  FORWARDING      NONE
+   0    GigabitEthernet0/0/22       ROOT  FORWARDING      NONE
+   0    GigabitEthernet0/0/23       ALTE  DISCARDING      NONE
+\end{lstlisting}
+
+显然，现在 S2 上多了一条链路（G0/0/23），RSTP 已经完成了收敛，成功阻断了环路。
+
+同时，在S1上检查状态，会发现23口处于FORWARDING状态，这是因为rstp只会阻断一侧的端口，从而切断环路：
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{
+        max width=0.9\linewidth,
+        max height=0.6\textheight,
+        min width=1cm,
+        min height=1cm,
+        keepaspectratio
+    }{
+        \includegraphics{img/S1接线后状态.png}
+    }
+    \caption{S1 接线后 STP 状态}
+    \label{fig:s1_stp_after}
+\end{figure}
+
+为了进一步验证，我们查看了22口在接前和接后的状态变化，发现流量并没有突然变得很大，说明并没有广播风暴发生：
+
+\begin{figure}[H]
+    \centering
+    % 第一张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.95\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/s1接线前后流量.png}
+        }
+        \subcaption{s1接线前后流量}
+    \end{minipage}
+    \hfill
+    % 第二张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.95\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/s2接线前后流量.png}
+        }
+        \subcaption{s2接线前后流量}
+    \end{minipage}
+    \caption{G0/0/22 端口流量对比}
+\end{figure}
+
+当前情况分析：
+
+\begin{itemize}
+    \item \textbf{Role (角色)}：G0/0/22 被选为 \texttt{ROOT} 端口，说明 S1 认为通过该端口到达根桥（S2）的路径开销最小。G0/0/23 被选为 \texttt{ALTE} (Alternate) 端口，即替代端口。
+    \item \textbf{State (状态)}：G0/0/22 处于 \texttt{FORWARDING} 状态，正常转发数据。G0/0/23 处于 \texttt{DISCARDING} 状态，这意味着该端口被逻辑阻塞，不转发用户数据，从而切断了环路。
+\end{itemize}
+
+\begin{myquote}
+    \textbf{思考}：为什么 S2 成为了根桥？（在写报告的时候想到了这个问题）
+    STP 选举根桥的依据是 Bridge ID (优先级 + MAC地址)。默认优先级都是 32768。我们检查发现 S2 的 MAC 地址较小，因此在竞选中获胜。如果我们需要指定 S1 为根桥，可以通过命令 \texttt{stp root primary} 来修改优先级。在本实验中，默认选举结果已满足防环需求，故未做修改。
+\end{myquote}
+
+这里我们也在其中一边的机子上镜像了22口的流量，用wireShark抓包，发现确实没有广播风暴的迹象，说明RSTP工作正常：
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{
+        max width=0.9\linewidth,
+        max height=0.6\textheight,
+        min width=1cm,
+        min height=1cm,
+        keepaspectratio
+    }{
+        \includegraphics{img/wireshark抓包无风暴.png}
+    }
+    \caption{Wireshark 抓包结果}
+    \label{fig:wireshark_capture}
+\end{figure}
+
+\subsection{故障模拟与收敛测试}
+
+为了进一步验证 RSTP 的可靠性，我们进行了一次故障模拟测试。这一步我们上次进行rstp实验的时候好像没做，这次正好有机会验证一下。
+
+\textbf{测试步骤}：
+\begin{enumerate}
+    \item 保持双链路连接，确认 G0/0/23 处于 Discarding 状态。
+    \item 拔掉 S1 的 G0/0/22 网线（模拟主链路故障）。
+    \item 观察 S1 的 G0/0/23 端口状态变化。
+\end{enumerate}
+
+\textbf{观察结果}：
+
+几乎在拔线的瞬间，G0/0/23 端口的状态立即从 \texttt{DISCARDING} 变为 \texttt{FORWARDING}。
+
+\begin{lstlisting}[language=HuaweiConfig, caption={故障切换后的 STP 状态}]
+[S1] display stp brief
+ MSTID  Port                        Role  STP State     Protection
+   0    GigabitEthernet0/0/1        DESI  FORWARDING      NONE
+   0    GigabitEthernet0/0/23       ROOT  FORWARDING      NONE
+\end{lstlisting}
+
+\textbf{原理分析}：
+
+这是 RSTP 的 UplinkFast 机制在起作用（虽然好像标准 RSTP 不叫这个名字来着）。当根端口失效时，如果存在替代端口Alternate Port，交换机会立即将替代端口切换为根端口并进入转发状态，无需等待 30 秒的侦听和学习时间。这也另一方面验证了理论课学的说冗余链路 RSTP 在应对链路故障时的高可用性。
+
+\subsection{边缘端口的优化}
+
+在实验中我们发现，连接 PC 的端口（如 G0/0/1）在启用 RSTP 后，有时候插拔网线仍需等待一小段时间才能转发，跟之前拔插马上就可以用的情况不太一样。
+
+我们在网上查了一圈，发现这是因为这些端口默认被视为普通 STP 端口，需要经历 Proposal/Agreement 过程。为了方便后面的使用，我们将连接 PC 的端口配置为边缘端口：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={配置边缘端口}]
+[S1] interface GigabitEthernet 0/0/1
+[S1-GigabitEthernet0/0/1] stp edged-port enable
+[S1-GigabitEthernet0/0/1] quit
+\end{lstlisting}
+
+配置后，该端口 Up 后立即进入 Forwarding 状态，不再发送 TC (Topology Change) BPDU，从而避免了不必要的全网拓扑震荡。
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\section{【任务二】VLAN 间路由配置}
+
+\subsection{配置思路}
+
+在前面那个实验，我们已经在交换机上成功创建了 VLAN 10 和 VLAN 20，并且把各自的主机端口划分到了对应的 VLAN 中，接下来我们要实现 VLAN 10 和 VLAN 20 之间的互通。
+
+为了实现跨网互通，我们要用 R1 来转发。在我们画的这个拓扑，R1 与交换机的连接方式如下：
+
+\begin{itemize}
+    \item R1 的 GE0/0/0 接口配置 IP 192.168.10.254，连接到 S1 的 Access VLAN 10 端口。
+    \item R1 的 GE0/0/1 接口配置 IP 192.168.20.254，连接到 S2 的 Access VLAN 20 端口。
+\end{itemize}
+
+所以我们可以想象，如果H1的某个包要到达H2，会绕很长一圈：\textbf{首先走vlan20线到s1的1口，转发到22口到s2的22口，再从s2的24口到r1的1口，这里才结束了vlan20的段进入10。r1路由到10网段的接口0口，再从0口到s1的24口，再走一次22口连线到s2，最后到s2的1口到h2。}如下图，绿色是在vlan20的，蓝色是在vlan10的：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{img/跨网包路径.png}
+    \caption{跨 VLAN 通信路径示意图}
+    \label{fig:cross_vlan_path}
+\end{figure}
+
+\subsection{R1 接口配置}
+
+所以这里我们要先配置R1的接口，这里干脆就把四个接口一块配了，方便后面实验使用。
+
+\begin{lstlisting}[language=HuaweiConfig, caption={R1 接口配置}]
+<Huawei> system-view
+[Huawei] sysname R1
+
+[R1] interface GigabitEthernet 0/0/0
+[R1-GigabitEthernet0/0/0] ip address 192.168.10.254 24
+[R1-GigabitEthernet0/0/0] quit
+
+[R1] interface GigabitEthernet 0/0/1
+[R1-GigabitEthernet0/0/1] ip address 192.168.20.254 24
+[R1-GigabitEthernet0/0/1] quit
+
+[R1] interface GigabitEthernet 0/0/2
+[R1-GigabitEthernet0/0/2] ip address 192.168.30.254 24
+[R1-GigabitEthernet0/0/2] quit
+
+[R1] interface GigabitEthernet 0/0/3
+[R1-GigabitEthernet0/0/3] ip address 192.168.12.1 24
+[R1-GigabitEthernet0/0/3] quit
+\end{lstlisting}
+
+配置截图：
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{
+        max width=0.9\linewidth,
+        max height=0.6\textheight,
+        min width=1cm,
+        min height=1cm,
+        keepaspectratio
+    }{
+        \includegraphics{img/R1接口配置.png}
+    }
+    \caption{R1 接口配置截图}
+    \label{fig:R1_interface_config}
+\end{figure}
+
+\subsection{H1/H2/H4互通}
+
+配置完成后，我们把三台主机互相ping，这里就展示H1 ping H2和H4的结果：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/H1pingH2H4.png}
+    \caption{H1 Ping H2 和 H4 测试结果}
+    \label{fig:H1_ping_H2_H4}
+\end{figure}
+
+Ping 通了，说明：
+
+\begin{enumerate}
+    \item H1 的流量成功到达网关 R1 (192.168.20.254)。
+    \item R1 查找路由表，发现目标 192.168.10.2 位于直连网段 GE0/0/0。
+    \item R1 将数据包转发给 S1，S1 再转发给 H2。
+    \item 回程路径同理。
+\end{enumerate}
+
+接着我们再tracert一下H2和H4，看看路径是否符合预期：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{img/H1tracertH2H4.png}
+    \caption{H1 Tracert H2 和 H4 测试结果}
+    \label{fig:H1_tracert_H2_H4}
+\end{figure}
+
+可以看到，H1到H2是跨网的，所以先经过了R1的20网段网关接口，才到达10网段，符合预期。H1到H4则是同网段的，直接到达，没有经过R1。
+
+在这里ping的时候其实也出了问题，发现ping不通，检查发现是忘记关防火墙了，所以后面我们把H1到H5的防火墙都关了，确保不影响实验。
+
+    
+
+
+
+
+
+\newpage
+
+\section{【任务三】OSPF 动态路由配置}
+
+\subsection{配置H3/H4/H5的IP地址}
+
+因为这里要五台机子全部互相ping通，所以我们先把H3、H4、H5的IP地址配置好，这里展示H3和H4的：
+
+\begin{figure}[H]
+    \centering
+    % 第一张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.95\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/H3配ip.png}
+        }
+        \subcaption{H3 配置 IP 地址}
+    \end{minipage}
+    \hfill
+    % 第二张图片
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \adjustbox{
+            max width=0.95\linewidth,
+            max height=0.45\textheight,
+            min width=1cm,
+            min height=1cm,
+            keepaspectratio
+        }{
+            \includegraphics{img/H4配ip.png}
+        }
+        \subcaption{H4 配置 IP 地址}
+    \end{minipage}
+    \caption{H3 和 H4 的 IP 地址配置}
+\end{figure}
+
+\subsection{R1 OSPF 配置}
+
+配完ip之后，我们就可以配置R1的OSPF了，R1要宣告它直连的四个网段。
+
+\begin{lstlisting}[language=HuaweiConfig, caption={R1 OSPF 配置}]
+[R1] ospf 1 router-id 1.1.1.1
+[R1-ospf-1] area 0
+[R1-ospf-1-area-0.0.0.0] network 192.168.10.0 0.0.0.255
+[R1-ospf-1-area-0.0.0.0] network 192.168.20.0 0.0.0.255
+[R1-ospf-1-area-0.0.0.0] network 192.168.30.0 0.0.0.255
+[R1-ospf-1-area-0.0.0.0] network 192.168.12.0 0.0.0.255
+[R1-ospf-1-area-0.0.0.0] quit
+[R1-ospf-1] quit
+\end{lstlisting}
+
+\subsection{R2 OSPF 配置}
+
+R2因为还没配过接口ip，所以这里先配接口ip，然后再配置OSPF，宣告它直连的两个网段：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={R2 OSPF 配置}]
+<Huawei> system-view
+[Huawei] sysname R2
+# 接口配置
+[R2] interface GigabitEthernet 0/0/0
+[R2-GigabitEthernet0/0/0] ip address 192.168.12.2 24
+[R2-GigabitEthernet0/0/0] quit
+[R2] interface GigabitEthernet 0/0/1
+[R2-GigabitEthernet0/0/1] ip address 192.168.50.254 24
+[R2-GigabitEthernet0/0/1] quit
+
+# OSPF 配置
+[R2] ospf 1 router-id 2.2.2.2
+[R2-ospf-1] area 0
+[R2-ospf-1-area-0.0.0.0] network 192.168.12.0 0.0.0.255
+[R2-ospf-1-area-0.0.0.0] network 192.168.50.0 0.0.0.255
+[R2-ospf-1-area-0.0.0.0] quit
+[R2-ospf-1] quit
+\end{lstlisting}
+
+配置截图：
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{
+        max width=0.9\linewidth,
+        max height=0.6\textheight,
+        min width=1cm,
+        min height=1cm,
+        keepaspectratio
+    }{
+        \includegraphics{img/R2配置.png}
+    }
+    \caption{R2 OSPF 配置截图}
+    \label{fig:R2_ospf_config}
+\end{figure}
+
+\subsection{OSPF 邻居建立与路由表检查}
+配置完成后，我们检查 OSPF 邻居状态，确保 R1 和 R2 成功建立了邻接关系。
+
+\begin{lstlisting}[language=HuaweiConfig, caption={检查 OSPF 邻居}]
+[R1] display ospf peer brief
+
+         OSPF Process 1 with Router ID 1.1.1.1
+                  Peer Statistic Information
+----------------------------------------------------------------------------
+ Area Id          Interface                        Neighbor id      State    
+ 0.0.0.0          GigabitEthernet0/0/3             2.2.2.2          2-Way        
+----------------------------------------------------------------------------
+\end{lstlisting}
+
+\textbf{状态分析}：State 为 \texttt{Full}，表示邻接关系已完全建立，LSDB（链路状态数据库）已同步完成。
+
+\subsection{LSDB 详细分析}
+为了深入理解 OSPF 的工作机制，我们查看了 R1 的链路状态数据库。
+\begin{lstlisting}[language=HuaweiConfig, caption={R1 LSDB}]
+[R1] display ospf lsdb
+
+         OSPF Process 1 with Router ID 1.1.1.1
+                 Link State Database 
+
+                         Area: 0.0.0.0
+ Type      LinkState ID    AdvRouter          Age  Len   Sequence   Metric
+ Router    2.2.2.2         2.2.2.2              6  48    80000006       1
+ Router    1.1.1.1         1.1.1.1              5  72    80000009       1
+ Network   192.168.12.1    1.1.1.1              6  32    80000001       0
+\end{lstlisting}
+
+\textbf{LSDB 解读}：
+\begin{itemize}
+    \item \textbf{Router LSA (Type 1)}：
+    \begin{itemize}
+        \item \texttt{AdvRouter 1.1.1.1}：R1 自己产生的 LSA，描述了连接到 VLAN 10, 20, 30 以及 192.168.12.0 网段的链路信息。
+        \item \texttt{AdvRouter 2.2.2.2}：R2 产生的 LSA，描述了连接到 192.168.50.0 和 192.168.12.0 网段的信息。
+    \end{itemize}
+    \item \textbf{Network LSA (Type 2)}：
+    \begin{itemize}
+        \item \texttt{LinkState ID 192.168.12.1}：这是 DR 的接口 IP 地址。说明在 192.168.12.0/24 这个广播多路访问网络中，R1 被选举为了 DR。
+        \item \texttt{AdvRouter 1.1.1.1}：由 DR (R1) 产生，描述了该网段上连接了 R1 和 R2 两台路由器。
+    \end{itemize}
+\end{itemize}
+
+\begin{myquote}
+    \textbf{思考}：为什么会有 DR 选举？
+    在广播网络（如 Ethernet）中，如果每两台路由器都建立邻接关系，邻接关系数量将是 $n(n-1)/2$。为了减少邻接关系和 LSA 泛洪量，OSPF 选举 DR (Designated Router) 和 BDR (Backup DR)。所有其他路由器（DRother）只与 DR/BDR 建立邻接关系。在本实验中，R1 和 R2 互联的链路是以太网链路，因此触发了 DR 选举。
+\end{myquote}
+
+接着检查 R1 的路由表，确认是否学习到了 R2 侧的路由（192.168.50.0/24）。R1的ospf配置全过程截图如下：
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{
+        max width=0.9\linewidth,
+        max height=0.6\textheight,
+        min width=1cm,
+        min height=1cm,
+        keepaspectratio
+    }{
+        \includegraphics{img/R1ospf全配置.png}
+    }
+    \caption{R1 路由表检查}
+    \label{fig:R1_routing_table}
+\end{figure}
+
+可以看到，R1 成功学习到了去往 192.168.50.0/24 的路由，下一跳为 192.168.12.2 (R2)。
+
+\subsection{各个主机互ping}
+
+配置完成后，我们在各个主机上进行了互相 ping 测试，确保五台主机之间均能通信。以下是部分测试结果截图，首先是H1 ping全部其他主机的结果：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/H1ping全部.png}
+    \caption{H1 Ping 2345}
+    \label{fig:H1_ping_all}
+\end{figure}
+
+接下来是H2 ping 345的结果：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/H2ping345.png}
+    \caption{H2 Ping 345}
+    \label{fig:H2_ping_345}
+\end{figure}
+
+然后是H3 ping 45的结果：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/H3ping45.png}
+    \caption{H3 Ping 45}
+    \label{fig:H3_ping_45}
+\end{figure}
+
+最后是H4 ping 5的结果：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/H4ping5.png}
+    \caption{H4 Ping 5}
+    \label{fig:H4_ping_5}
+\end{figure}
+
+所有主机均能成功 ping 通其他主机，说明 OSPF 动态路由配置正确，网络连通性良好。
+
+
+
+\newpage
+
+\section{【任务四】基于时间的 ACL 访问控制}
+
+\subsection{需求分析与策略设计}
+这一个任务要求我们实现基于时间的精细化访问控制，相比于我们之前实验课做过的 ACL，Time-range ACL 引入了时间维度，使得网络策略更加灵，但也相应的更难配了。需求矩阵如下：
+\begin{itemize}
+    \item \textbf{上午 (08:00-11:00)}：H1 可访 H5，禁访 H3；H2 可访 H3，禁访 H5。
+    \item \textbf{下午 (14:00-17:00)}：H1 可访 H3，禁访 H5；H2 可访 H5，禁访 H3。
+    \item \textbf{其他时间}：禁止 H1/H2 访问 H3/H5。
+    \item \textbf{全时段允许}：H1/H2/H4 互通；H3/H5 互通。
+\end{itemize}
+
+\begin{myquote}
+    \textbf{策略设计难点}：ACL 的匹配规则是“顺序匹配，命中即止”。因此，我们需要将具体的、特殊的规则放在前面，将通用的、默认的规则放在后面。
+    此外，为了防止默认的 \texttt{deny} 规则误伤 VLAN 间流量（H1-H2），我们需要在 ACL 最前端显式放行 VLAN 10 和 VLAN 20 之间的流量。
+\end{myquote}
+
+\subsection{ACL 匹配逻辑深度解析}
+为了确保 ACL 策略的正确性，我们必须深入分析 ACL 的匹配机制。ACL 的匹配遵循“顺序优先”原则，具体取决于设备实现。在华为设备上，我们查到是默认遵循 \textbf{Config 模式}，即按照 Rule ID 从小到大依次匹配。
+
+比方说我们有以下规则集作为错误示例：
+\begin{lstlisting}[language=HuaweiConfig, caption={ACL 错误示例}]
+rule 10 deny ip source 192.168.20.1 0 destination 192.168.50.5 0
+rule 20 permit ip source 192.168.20.1 0 destination 192.168.50.5 0 time-range morning
+\end{lstlisting}
+\textbf{分析}：
+如果当前时间是上午 09:00，H1 (20.1) 访问 H5 (50.5)。
+\begin{itemize}
+    \item 系统首先检查 Rule 10。
+    \item 源 IP 匹配，目的 IP 匹配。
+    \item 动作是 Deny。
+    \item \textbf{结果}：数据包被丢弃。系统不再检查 Rule 20。
+\end{itemize}
+这意味着，即使 Rule 20 允许了该流量，由于 Rule 10 排在前面且匹配成功，Rule 20 永远不会生效。
+
+\textbf{正确策略}：
+必须将更具体的、带有时间限制的规则放在前面，将通用的、无时间限制的规则放在后面。
+\begin{lstlisting}[language=HuaweiConfig, caption={ACL 正确策略示例}]
+rule 5 permit ip source 192.168.20.1 0 destination 192.168.50.5 0 time-range morning
+rule 55 deny ip source 192.168.20.1 0 destination 192.168.50.5 0
+\end{lstlisting}
+\textbf{分析}：
+\begin{itemize}
+    \item \textbf{上午 09:00}：
+    \begin{itemize}
+        \item 检查 Rule 5：源/目 IP 匹配，时间范围匹配（当前在 morning 范围内）。
+        \item 动作：Permit。
+        \item 结果：放行。
+    \end{itemize}
+    \item \textbf{晚上 20:00}：
+    \begin{itemize}
+        \item 检查 Rule 5：源/目 IP 匹配，但时间范围\textbf{不匹配}（当前不在 morning 范围内）。
+        \item 规则不生效，继续检查下一条。
+        \item ... (中间规则不匹配) ...
+        \item 检查 Rule 55：源/目 IP 匹配，无时间限制。
+        \item 动作：Deny。
+        \item 结果：丢弃。
+    \end{itemize}
+\end{itemize}
+通过这种“特例在前，通用在后”的排序方式，我们才能实现预期的分时段控制。下面我们也通过这个思路来配置 ACL。
+
+\subsection{ACL 配置实施}
+
+首先定义上下午两个时间段：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={定义时间段}]
+[R1] time-range morning 08:00 to 11:00 daily
+[R1] time-range afternoon 14:00 to 17:00 daily
+\end{lstlisting}
+
+接着定义高级 ACL 3027：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={ACL 3027 定义}]
+[R1] acl 3027
+\end{lstlisting}
+
+然后我们在最前面放行 VLAN 间流量（其实这一步是写完后面那堆规则才想到的），主要是为了防止后续的 deny 规则阻断内网互通：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={VLAN 间互访规则}]
+rule 1 permit ip source 192.168.10.0 0.0.0.255 destination 192.168.20.0 0.0.0.255
+rule 2 permit ip source 192.168.20.0 0.0.0.255 destination 192.168.10.0 0.0.0.255
+\end{lstlisting}
+
+然后我们添加上午的规则，主要有四条，分别是允许H1访H5，禁止H1访H3，允许H2访H3，禁止H2访H5：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={上午规则}]
+# H1 (VLAN 20) -> H5 (50.5): Permit
+rule 5 permit ip source 192.168.20.1 0 destination 192.168.50.5 0 time-range morning
+# H1 -> H3 (30.3): Deny
+rule 10 deny ip source 192.168.20.1 0 destination 192.168.30.3 0 time-range morning
+# H2 (VLAN 10) -> H3: Permit
+rule 15 permit ip source 192.168.10.2 0 destination 192.168.30.3 0 time-range morning
+# H2 -> H5: Deny
+rule 20 deny ip source 192.168.10.2 0 destination 192.168.50.5 0 time-range morning
+\end{lstlisting}
+
+接着是下午的规则，同样四条，分别是允许H1访H3，禁止H1访H5，允许H2访H5，禁止H2访H3：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={下午规则}]
+# H1 -> H3: Permit
+rule 25 permit ip source 192.168.20.1 0 destination 192.168.30.3 0 time-range afternoon
+# H1 -> H5: Deny
+rule 30 deny ip source 192.168.20.1 0 destination 192.168.50.5 0 time-range afternoon
+# H2 -> H5: Permit
+rule 35 permit ip source 192.168.10.2 0 destination 192.168.50.5 0 time-range afternoon
+# H2 -> H3: Deny
+rule 40 deny ip source 192.168.10.2 0 destination 192.168.30.3 0 time-range afternoon
+\end{lstlisting}
+
+对于其他时间段，我们添加默认拒绝规则，禁止 H1/H2 访问 H3/H5：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={其他时间段默认拒绝规则}]
+rule 50 deny ip source 192.168.20.1 0 destination 192.168.30.3 0
+rule 55 deny ip source 192.168.20.1 0 destination 192.168.50.5 0
+rule 60 deny ip source 192.168.10.2 0 destination 192.168.30.3 0
+rule 65 deny ip source 192.168.10.2 0 destination 192.168.50.5 0
+\end{lstlisting}
+
+最后，为了确保其他流量不受影响（比如 OSPF Hello 包等），我们放行所有其他流量：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={放行其他流量}]
+rule 100 permit ip
+[R1-acl-adv-3027] quit
+\end{lstlisting}
+
+然后是应用，我们将 ACL 应用于R1 的两个接口上，分别控制来自 VLAN 10 和 VLAN 20 的流量：
+\begin{lstlisting}[language=HuaweiConfig, caption={应用 ACL}]
+[R1] interface GigabitEthernet 0/0/0
+[R1-GigabitEthernet0/0/0] traffic-filter inbound acl 3027
+[R1-GigabitEthernet0/0/0] quit
+
+[R1] interface GigabitEthernet 0/0/1
+[R1-GigabitEthernet0/0/1] traffic-filter inbound acl 3027
+[R1-GigabitEthernet0/0/1] quit
+\end{lstlisting}
+
+配置截图如下：
+
+\begin{figure}[H]
+    \centering
+    \adjustbox{
+        max width=0.9\linewidth,
+        max height=0.6\textheight,
+        min width=1cm,
+        min height=1cm,
+        keepaspectratio
+    }{
+        \includegraphics{img/ACL配置截图.png}
+    }
+    \caption{ACL 配置截图}
+    \label{fig:acl_config_screenshot}
+\end{figure}
+
+\subsection{验证测试}
+
+配置完成后，我们在不同时间段对 H1 和 H2 进行访问测试，验证 ACL 策略的正确性。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/时间设置.png}
+    \caption{ACL 时间设置}
+    \label{fig:acl_test_topology}
+\end{figure}
+
+\subsubsection{上午时间段}
+
+首先测试上午 09:00 的情况，我们在R1上设置时间：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={设置 R1 时间为上午 09:00}]
+<R1> clock datetime 09:00:00 2025-12-22
+\end{lstlisting}
+
+在H1上发现，可以ping通H5，ping不通H3：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/上午H1pingH5H3.png}
+    \caption{上午 H1 Ping H5 和 H3 结果}
+    \label{fig:morning_H1_ping}
+\end{figure}
+
+在H2上发现，可以ping通H3，ping不通H5：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/上午H2pingH3H5.png}
+    \caption{上午 H2 Ping H3 和 H5 结果}
+    \label{fig:morning_H2_ping}
+\end{figure}
+
+\subsubsection{下午时间段}
+
+接着测试下午 15:00 的情况，同样设置 R1 时间：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={设置 R1 时间为下午 15:00}]
+<R1> clock datetime 15:00:00 2025-12-22
+\end{lstlisting}
+
+在H1上发现，可以ping通H3，ping不通H5：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/下午H1pingH3H5.png}
+    \caption{下午 H1 Ping H3 和 H5 结果}
+    \label{fig:afternoon_H1_ping}
+\end{figure}
+
+在H2上发现，可以ping通H5，ping不通H3：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/下午H2pingH5H3.png}
+    \caption{下午 H2 Ping H5 和 H3 结果}
+    \label{fig:afternoon_H2_ping}
+\end{figure}
+
+\subsubsection{其他时间段}
+
+最后测试晚上 20:00 的情况，设置 R1 时间：
+
+\begin{lstlisting}[language=HuaweiConfig, caption={设置 R1 时间为晚上 20:00}]
+<R1> clock datetime 20:00:00 2025-12-22
+\end{lstlisting}
+
+此时不论在H1还是H2上，均无法ping通H3和H5：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/晚上H1H2pingH3H5.png}
+    \caption{晚上 H1 和 H2 Ping H3 和 H5 结果}
+    \label{fig:night_H1_H2_ping}
+\end{figure}
+
+\subsubsection{所有时间段}
+
+在所有时间段内，H1、H2 和 H4 之间均能互通：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/所有时间段H1H2H4互通.png}
+    \caption{所有时间段 H1、H2 和 H4 互通结果}
+    \label{fig:all_time_H1_H2_H4_ping}
+\end{figure}
+
+H3 和 H5 之间也能互通：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\textwidth]{img/所有时间段H3H5互通.png}
+    \caption{所有时间段 H3 和 H5 互通结果}
+    \label{fig:all_time_H3_H5_ping}
+\end{figure}
+
+综上所述，\textbf{ACL 配置正确}，实现了预期的基于时间的访问控制策略。
+
+
+
+
+
+
+
+
+
+
+
+
+\newpage
+
+\section{【任务五】网络套接字编程}
+
+\subsection{协议设计}
+本任务要求基于 TCP 协议实现 H1 (Client) 向 H5 (Server) 发送文本和图像数据。为了确保数据在网络传输中的完整性以及解决 TCP 粘包问题，我们设计了一个简单的应用层通信协议。
+
+通信双方约定采用“长度前缀”的方式传输变长数据。具体流程如下：
+\begin{enumerate}
+    \item 建立 TCP 连接。
+    \item 发送文本数据长度（4字节，大端序 unsigned int）。
+    \item 发送文本数据内容（UTF-8 编码）。
+    \item 发送图像数据长度（4字节，大端序 unsigned int）。
+    \item 发送图像数据内容（二进制）。
+    \item 发送图像的 MD5 校验码（32字节，UTF-8 编码）。
+    \item 服务器校验 MD5 并返回确认信息。
+\end{enumerate}
+
+\subsection{服务端 (Server) 代码实现}
+服务端代码 \texttt{server.py} 运行在 H5 上，负责监听端口、接收数据并保存文件。
+
+\subsubsection{辅助函数与初始化}
+首先引入必要的库，定义服务器 IP、端口及保存路径。\texttt{calculate\_md5} 用于计算数据的哈希值以校验完整性。\texttt{recv\_all} 函数是 TCP 编程中的关键，用于确保完整接收指定长度的数据，防止因网络分片导致的接收不全。
+
+\begin{lstlisting}[language=Python, caption={server.py: 辅助函数}]
+import socket
+import struct
+import hashlib
+import os
+
+SERVER_IP = '0.0.0.0'
+SERVER_PORT = 9999
+SAVE_DIR = 'received_files'
+
+def calculate_md5(data):
+    return hashlib.md5(data).hexdigest()
+
+def recv_all(sock, n):
+    data = b''
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data += packet
+    return data
+\end{lstlisting}
+
+\subsubsection{主逻辑与数据接收}
+\texttt{start\_server} 函数初始化 Socket，绑定地址并开始监听。服务器采用循环方式处理客户端连接。连接建立后，服务器严格按照协议顺序接收数据：首先接收4字节的文本长度，解析后接收对应长度的文本内容并保存；接着接收图像长度和图像数据。
+
+随后接收客户端发送的 MD5 校验码，服务器自行计算接收到的图像数据的 MD5 并进行比对，验证数据传输的正确性。最后发送 ACK 确认。
+
+\begin{lstlisting}[language=Python, caption={server.py: 主逻辑}]
+def start_server():
+    if not os.path.exists(SAVE_DIR):
+        os.makedirs(SAVE_DIR)
+
+    # 创建 TCP Socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((SERVER_IP, SERVER_PORT))
+    server_socket.listen(1)
+    
+    print(f"[*] Server listening on {SERVER_IP}:{SERVER_PORT}")
+
+    while True:
+        client_socket, addr = server_socket.accept()
+        print(f"[+] Accepted connection from {addr}")
+
+        try:
+            # 1. 接收文本长度 (4 bytes)
+            raw_text_len = recv_all(client_socket, 4)
+            if not raw_text_len: break
+            text_len = struct.unpack('!I', raw_text_len)[0]
+
+            # 2. 接收文本内容
+            text_data = recv_all(client_socket, text_len)
+            text_content = text_data.decode('utf-8')
+            print(f"[R] Received Text:\n{text_content}\n")
+            
+            # 保存文本
+            with open(os.path.join(SAVE_DIR, 'received_text.txt'), 'w', encoding='utf-8') as f:
+                f.write(text_content)
+
+            # 3. 接收图片长度 (4 bytes)
+            raw_img_len = recv_all(client_socket, 4)
+            img_len = struct.unpack('!I', raw_img_len)[0]
+
+            # 4. 接收图片内容
+            print(f"[*] Expecting image size: {img_len} bytes")
+            img_data = recv_all(client_socket, img_len)
+            
+            # 5. 接收客户端计算的 MD5 (32 bytes hex string)
+            client_md5 = recv_all(client_socket, 32).decode('utf-8')
+
+            # 验证完整性
+            server_md5 = calculate_md5(img_data)
+            print(f"[V] Client MD5: {client_md5}")
+            print(f"[V] Server MD5: {server_md5}")
+
+            if client_md5 == server_md5:
+                print("[+] Integrity Check: PASSED")
+            else:
+                print("[-] Integrity Check: FAILED")
+
+            # 保存图片
+            save_path = os.path.join(SAVE_DIR, 'received_image.bmp')
+            with open(save_path, 'wb') as f:
+                f.write(img_data)
+            print(f"[+] Image saved to {save_path}")
+
+            # 发送确认
+            client_socket.send(b"ACK: Transfer Complete")
+
+        except Exception as e:
+            print(f"[-] Error: {e}")
+        finally:
+            client_socket.close()
+            print("[-] Connection closed")
+            break
+
+if __name__ == '__main__':
+    start_server()
+\end{lstlisting}
+
+\subsection{客户端 (Client) 代码实现}
+客户端代码 \texttt{client.py} 运行在 H1 上，负责读取本地数据并发送给服务器。
+
+\subsubsection{配置与准备}
+定义目标服务器 IP（H5 的 IP 地址）和端口，以及待发送的文本和图片路径。
+
+\begin{lstlisting}[language=Python, caption={client.py: 配置与准备}]
+import socket
+import struct
+import hashlib
+import os
+import sys
+
+SERVER_IP = '192.168.50.5'
+SERVER_PORT = 9999
+IMAGE_PATH = 'image.bmp'
+
+TEXT_CONTENT = """Dr. Sun Yat-sen ordered the merger of several colleges and universities in February 1924, into the National Guangdong University, which was renamed as National Sun Yat-sen University in his memory in August 1926."""
+
+def calculate_md5(data):
+    return hashlib.md5(data).hexdigest()
+\end{lstlisting}
+
+\subsubsection{连接与发送逻辑}
+\texttt{start\_client} 函数首先检查图片文件是否存在，然后建立连接。读取图片数据并计算 MD5 后，依次发送：文本长度、文本内容、图片长度、图片内容、MD5 校验码。注意使用 \texttt{struct.pack('!I', ...)} 将长度打包为网络字节序（大端）。
+
+\begin{lstlisting}[language=Python, caption={client.py: 发送逻辑}]
+def start_client():
+    # 检查图片是否存在
+    if not os.path.exists(IMAGE_PATH):
+        print(f"[-] Error: {IMAGE_PATH} not found. Please place a BMP file named '{IMAGE_PATH}' in the same directory.")
+        # with open(IMAGE_PATH, 'wb') as f:
+        #     f.write(b'BM' + b'\x00'*52) # Minimal BMP header
+        # print(f"[!] Created dummy {IMAGE_PATH} for testing.")
+
+    try:
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print(f"[*] Connecting to {SERVER_IP}:{SERVER_PORT}...")
+        client_socket.connect((SERVER_IP, SERVER_PORT))
+        print("[+] Connected.")
+
+        # 准备数据
+        text_bytes = TEXT_CONTENT.encode('utf-8')
+        with open(IMAGE_PATH, 'rb') as f:
+            img_bytes = f.read()
+        
+        img_md5 = calculate_md5(img_bytes)
+
+        # 1. 发送文本长度 (4 bytes)
+        print(f"[*] Sending Text ({len(text_bytes)} bytes)...")
+        client_socket.send(struct.pack('!I', len(text_bytes)))
+        
+        # 2. 发送文本内容
+        client_socket.send(text_bytes)
+
+        # 3. 发送图片长度 (4 bytes)
+        print(f"[*] Sending Image ({len(img_bytes)} bytes)...")
+        client_socket.send(struct.pack('!I', len(img_bytes)))
+
+        # 4. 发送图片内容
+        client_socket.sendall(img_bytes)
+
+        # 5. 发送 MD5 校验和
+        print(f"[*] Sending MD5: {img_md5}")
+        client_socket.send(img_md5.encode('utf-8'))
+
+        # 接收确认
+        response = client_socket.recv(1024)
+        print(f"[S] Server Response: {response.decode()}")
+
+    except ConnectionRefusedError:
+        print("[-] Connection refused. Is the server running?")
+    except Exception as e:
+        print(f"[-] Error: {e}")
+    finally:
+        client_socket.close()
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        SERVER_IP = sys.argv[1]
+    start_client()
+\end{lstlisting}
+
+
+\subsection{运行验证}
+
+我们要先在 H5 上启动服务端程序，开始监听，然后再开启 H1 上的客户端程序，连接并发送数据。
+
+看到H1端输出发送过程，这里我们前面因为启动时间没有配合好以及防火墙没有彻底关闭，失败了两次，第三次成功看见Connected并在发送后收到了ACK确认：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/Client成功连接并发送.png}
+    \caption{H1 客户端成功连接并发送数据}
+    \label{fig:client_success}
+\end{figure}
+
+而在H5这边，先看见了Accepted connection，然后是接收文本和图片的过程，最后显示完整性校验通过，并保存了文件：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/Server成功接收并校验.png}
+    \caption{H5 服务器成功接收并校验数据}
+    \label{fig:server_success}
+\end{figure}
+
+最终我们在 H5 的 \texttt{received\_files} 目录下看到了接收到的文本文件和图片文件，图片能够正常打开，说明数据传输完整且正确。收到的文件以及打开的文字如图：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/收到的两个文件.png}
+    \caption{H5 上接收到的两个文件}
+    \label{fig:received_text}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/文本内容.png}
+    \caption{接收到的文本内容}
+    \label{fig:received_text_content}
+\end{figure}
+
+最终，我们在H5上的wireshark抓包，看到H1向H5发送的TCP数据包，也看见了ack psh fin等标志位，说明数据传输正常：
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{img/H5wireshark抓包.jpg}
+    \caption{H5 上的 Wireshark 抓包结果}
+    \label{fig:wireshark_capture}
+\end{figure}
+
+
+
+
+
+
+
+
+\newpage
+
+\section{实验总结}
+
+通过本次实验，我们深入理解并实践了各个网络技术点，包括 VLAN 配置、OSPF 动态路由协议、基于时间的 ACL 访问控制以及基于 TCP 的网络套接字编程。具体总结如下：
+
+\begin{itemize}
+    \item \textbf{VLAN 配置}：通过划分 VLAN，实现了网络的逻辑隔离和管理，提高了网络的安全性和性能。掌握了交换机端口配置、VLAN 间路由等关键技术。
+    
+    \item \textbf{OSPF 动态路由}：理解了 OSPF 的工作原理和配置方法，成功实现了多子网间的动态路由。通过查看邻居关系和路由表，验证了 OSPF 的正确运行。
+    
+    \item \textbf{基于时间的 ACL}：学习并应用了 Time-range ACL，实现了精细化的访问控制策略。深入分析了 ACL 的匹配机制，确保了策略的正确性和有效性。
+    
+    \item \textbf{网络套接字编程}：通过 Python 实现了基于 TCP 的客户端-服务器通信，设计了简单的应用层协议，解决了数据完整性和粘包问题。实际运行验证了程序的功能和稳定性。
+\end{itemize}
+
+
+\appendix
+\section{附录：参考文献}
+
+\begin{thebibliography}{99}
+\bibitem{Guidance} Yi Xie. 中山大学本科生期末考试《计算机网络实验》(25 年秋季).
+\bibitem{kurose} James F. Kurose, Keith W. Ross. Computer Networking: A Top-Down Approach (7th Edition). Pearson, 2017.
+\bibitem{huawei} NetEngine AR600, AR6100, AR6200, AR6300 产品文档. 华为技术有限公司. \url{https://support.huawei.com/hedex/hdx.do?docid=EDOC1100408788&id=ZH-CN_CLIREF_0177882197}
+\bibitem{python_socket} Python Software Foundation. Python 3.11.4 Documentation - Socket Interface. \url{https://docs.python.org/3/library/socket.html}
+\end{thebibliography}
+
+% \section{附录：设备完整配置清单}
+
+% \subsection{路由器 R1 完整配置}
+% \begin{lstlisting}[language=HuaweiConfig, caption={路由器 R1 完整配置}]
+% #
+% sysname R1
+% #
+% interface GigabitEthernet0/0/0
+%  description Gateway_for_VLAN10
+%  ip address 192.168.10.254 255.255.255.0
+%  traffic-filter inbound acl 3000
+% #
+% interface GigabitEthernet0/0/1
+%  description Gateway_for_VLAN20
+%  ip address 192.168.20.254 255.255.255.0
+%  traffic-filter inbound acl 3000
+% #
+% interface GigabitEthernet0/0/2
+%  ip address 192.168.30.254 255.255.255.0
+% #
+% interface GigabitEthernet0/0/3
+%  ip address 192.168.12.1 255.255.255.0
+% #
+% ospf 1 router-id 1.1.1.1
+%  area 0.0.0.0
+%   network 192.168.10.0 0.0.0.255
+%   network 192.168.12.0 0.0.0.255
+%   network 192.168.20.0 0.0.0.255
+%   network 192.168.30.0 0.0.0.255
+% #
+% time-range morning 08:00 to 11:00 daily
+% time-range afternoon 14:00 to 17:00 daily
+% #
+% acl number 3000
+%  rule 1 permit ip source 192.168.10.0 0.0.0.255 destination 192.168.20.0 0.0.0.255
+%  rule 2 permit ip source 192.168.20.0 0.0.0.255 destination 192.168.10.0 0.0.0.255
+%  rule 5 permit ip source 192.168.20.1 0 destination 192.168.50.5 0 time-range morning
+%  rule 10 deny ip source 192.168.20.1 0 destination 192.168.30.3 0 time-range morning
+%  rule 15 permit ip source 192.168.10.2 0 destination 192.168.30.3 0 time-range morning
+%  rule 20 deny ip source 192.168.10.2 0 destination 192.168.50.5 0 time-range morning
+%  rule 25 permit ip source 192.168.20.1 0 destination 192.168.30.3 0 time-range afternoon
+%  rule 30 deny ip source 192.168.20.1 0 destination 192.168.50.5 0 time-range afternoon
+%  rule 35 permit ip source 192.168.10.2 0 destination 192.168.50.5 0 time-range afternoon
+%  rule 40 deny ip source 192.168.10.2 0 destination 192.168.30.3 0 time-range afternoon
+%  rule 50 deny ip source 192.168.20.1 0 destination 192.168.30.3 0
+%  rule 55 deny ip source 192.168.20.1 0 destination 192.168.50.5 0
+%  rule 60 deny ip source 192.168.10.2 0 destination 192.168.30.3 0
+%  rule 65 deny ip source 192.168.10.2 0 destination 192.168.50.5 0
+%  rule 100 permit ip
+% #
+% \end{lstlisting}
+
+% \subsection{路由器 R2 完整配置}
+% \begin{lstlisting}[language=HuaweiConfig, caption={路由器 R2 完整配置}]
+% #
+% sysname R2
+% #
+% interface GigabitEthernet0/0/0
+%  ip address 192.168.12.2 255.255.255.0
+% #
+% interface GigabitEthernet0/0/1
+%  ip address 192.168.50.254 255.255.255.0
+% #
+% ospf 1 router-id 2.2.2.2
+%  area 0.0.0.0
+%   network 192.168.12.0 0.0.0.255
+%   network 192.168.50.0 0.0.0.255
+% #
+% \end{lstlisting}
+
+% \subsection{交换机 S1 完整配置}
+% \begin{lstlisting}[language=HuaweiConfig, caption={交换机 S1 完整配置}]
+% #
+% sysname S1
+% #
+% vlan batch 10 20
+% #
+% stp mode rstp
+% stp enable
+% #
+% interface GigabitEthernet0/0/1
+%  port link-type access
+%  port default vlan 20
+%  stp edged-port enable
+% #
+% interface GigabitEthernet0/0/22
+%  port link-type trunk
+%  port trunk allow-pass vlan 10 20
+% #
+% interface GigabitEthernet0/0/23
+%  port link-type trunk
+%  port trunk allow-pass vlan 10 20
+% #
+% interface GigabitEthernet0/0/24
+%  port link-type access
+%  port default vlan 10
+% #
+% \end{lstlisting}
+
+% \subsection{交换机 S2 完整配置}
+% \begin{lstlisting}[language=HuaweiConfig, caption={交换机 S2 完整配置}]
+% #
+% sysname S2
+% #
+% vlan batch 10 20
+% #
+% stp mode rstp
+% stp enable
+% #
+% interface GigabitEthernet0/0/1
+%  port link-type access
+%  port default vlan 10
+%  stp edged-port enable
+% #
+% interface GigabitEthernet0/0/2
+%  port link-type access
+%  port default vlan 20
+%  stp edged-port enable
+% #
+% interface GigabitEthernet0/0/22
+%  port link-type trunk
+%  port trunk allow-pass vlan 10 20
+% #
+% interface GigabitEthernet0/0/23
+%  port link-type trunk
+%  port trunk allow-pass vlan 10 20
+% #
+% interface GigabitEthernet0/0/24
+%  port link-type access
+%  port default vlan 20
+% #
+% \end{lstlisting}
+
+
+\end{document}
+

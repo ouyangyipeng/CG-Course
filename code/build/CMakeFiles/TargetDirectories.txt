@@ -1,0 +1,10 @@
+/work/CG/HW3/code/build/CMakeFiles/imgui.dir
+/work/CG/HW3/code/build/CMakeFiles/CG_HW3.dir
+/work/CG/HW3/code/build/CMakeFiles/edit_cache.dir
+/work/CG/HW3/code/build/CMakeFiles/rebuild_cache.dir
+/work/CG/HW3/code/build/glfw/CMakeFiles/edit_cache.dir
+/work/CG/HW3/code/build/glfw/CMakeFiles/rebuild_cache.dir
+/work/CG/HW3/code/build/glfw/src/CMakeFiles/update_mappings.dir
+/work/CG/HW3/code/build/glfw/src/CMakeFiles/glfw.dir
+/work/CG/HW3/code/build/glfw/src/CMakeFiles/edit_cache.dir
+/work/CG/HW3/code/build/glfw/src/CMakeFiles/rebuild_cache.dir
